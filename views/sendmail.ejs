@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Alert</title>
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+    </script>
+    <script type="text/javascript">
+        emailjs.init("DeYn73z5X5jvGuRKA");
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: rgb(145, 71, 255);
+            color: white;
+        }
+        .main {
+            justify-content: center;
+            margin-inline: auto;
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+            height: 100vh;
+            text-align: center;
+        }
+        #caution {
+            width: 25%;
+            margin-inline: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <img src="/images/caution.png" alt=".." id="caution">
+        <h4>An emergency mail will be sent to these emails</h4>
+        <tbody class="emails">
+            <% emails.forEach(email => { %>
+                <tr>
+                  <td data-label="User"><%= email %></td>
+                </tr>
+            <% }) %>
+        </tbody>
+        <button onclick="sendAlert()" type="button" class="btn btn-danger">Danger</button>
+    </div>
+
+    <script>
+        const guardianEmails = <%- JSON.stringify(emails) %>;
+
+        function sendAlert() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showLocation, handleError);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+
+            function showLocation(position) {
+                const latitude = parseFloat(position.coords.latitude);
+                const longitude = parseFloat(position.coords.longitude);
+
+                const username = "<%= username %>"; // Replace with actual username logic
+
+                // Send location data to the server
+                if (!username || !latitude || !longitude) {
+                console.error("Username, latitude, or longitude is missing:", username, latitude, longitude);
+                return;
+               }
+
+                
+
+                // Send alert email
+                guardianEmails.forEach(email => {
+                    const emailParams = {
+                        to_name: "Guardian",
+                        from_name: username,
+                        message: `Please help me. Location: https://www.google.com/maps?q=${latitude},${longitude}`,
+                        reply_to: "user@example.com",
+                        email_id: email,
+                    };
+
+                    emailjs.send("service_u2j7i32", "template_2guveob", emailParams)
+                        .then(res => {
+                            alert("Email sent successfully to " + email);
+                        })
+                        .catch(err => {
+                            alert("Failed to send email to " + email);
+                            console.error(err);
+                        });
+                });
+            }
+            
+            function handleError(error) {
+                console.error("Geolocation error:", error);
+                alert("Unable to retrieve location.");
+            }
+        }
+    </script>
+</body>
+</html>
